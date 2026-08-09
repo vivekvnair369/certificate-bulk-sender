@@ -49,6 +49,7 @@ export default function Participants() {
   const createMutation = trpc.sender.createParticipant.useMutation();
   const updateMutation = trpc.sender.updateParticipant.useMutation();
   const deleteMutation = trpc.sender.deleteParticipant.useMutation();
+  const deleteBulkMutation = trpc.sender.deleteParticipantsBulk.useMutation();
   const importCSVMutation = trpc.sender.importCSV.useMutation();
   const sendBulkMutation = trpc.sender.sendBulk.useMutation();
 
@@ -204,6 +205,21 @@ export default function Participants() {
     }
   };
 
+  // Bulk Delete Selected
+  const handleDeleteSelected = async () => {
+    if (selectedParticipantIds.length === 0) return;
+    if (!confirm(`Are you sure you want to remove the ${selectedParticipantIds.length} selected participant(s)?`)) return;
+
+    try {
+      await deleteBulkMutation.mutateAsync({ ids: selectedParticipantIds });
+      toast.success("Selected participants removed");
+      setSelectedParticipantIds([]);
+      utils.sender.listParticipants.invalidate();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to remove selected participants");
+    }
+  };
+
   // Open Edit Form
   const openEdit = (participant: any) => {
     setCurrentEditParticipant(participant);
@@ -267,21 +283,41 @@ export default function Participants() {
                 {selectedParticipantIds.length} recipient(s) selected for bulk dispatch
               </div>
             </div>
-            <Button 
-              onClick={handleSendBulk} 
-              disabled={selectedParticipantIds.length === 0 || !selectedTemplateId || sendBulkMutation.isPending}
-              className="bg-[#0A2540] hover:bg-[#123659] text-white"
-            >
-              {sendBulkMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Starting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" /> Blast Certificates
-                </>
+            <div className="flex gap-2 w-full md:w-auto">
+              {selectedParticipantIds.length > 0 && (
+                <Button
+                  onClick={handleDeleteSelected}
+                  disabled={deleteBulkMutation.isPending}
+                  variant="outline"
+                  className="border-rose-200 hover:bg-rose-50 text-rose-600 font-semibold"
+                >
+                  {deleteBulkMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Removing...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
+              <Button 
+                onClick={handleSendBulk} 
+                disabled={selectedParticipantIds.length === 0 || !selectedTemplateId || sendBulkMutation.isPending}
+                className="bg-[#0A2540] hover:bg-[#123659] text-white"
+              >
+                {sendBulkMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Starting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" /> Blast Certificates
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}

@@ -223,9 +223,19 @@ export const certificateSenderRouter = router({
       return { success: true };
     }),
 
+  deleteParticipantsBulk: protectedProcedure
+    .input(z.object({ ids: z.array(z.number()) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db || input.ids.length === 0) return { success: true };
+      await db.delete(participants).where(inArray(participants.id, input.ids));
+      return { success: true };
+    }),
+
   importCSV: protectedProcedure
     .input(z.object({ csvContent: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      console.log("[importCSV] Raw CSV content (first 500 chars):", JSON.stringify(input.csvContent.slice(0, 500)));
       const records = await parseParticipantCSV(input.csvContent);
       if (records.length === 0) {
         throw new Error("No valid participant records found in CSV");
