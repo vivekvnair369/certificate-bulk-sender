@@ -165,6 +165,64 @@ export const certificateSenderRouter = router({
       return { success: true };
     }),
 
+  updateTemplate: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1, "Template name is required"),
+        nameX: z.number(),
+        nameY: z.number(),
+        nameFont: z.string(),
+        nameFontSize: z.number(),
+        nameColor: z.string(),
+        eventX: z.number(),
+        eventY: z.number(),
+        eventFont: z.string(),
+        eventFontSize: z.number(),
+        eventColor: z.string(),
+        collegeX: z.number(),
+        collegeY: z.number(),
+        collegeFont: z.string(),
+        collegeFontSize: z.number(),
+        collegeColor: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Ensure ownership
+      const template = await getCertificateTemplate(ctx.user.id, input.id);
+      if (!template) {
+        throw new Error("Template not found or unauthorized");
+      }
+
+      await db
+        .update(certificateTemplates)
+        .set({
+          name: input.name,
+          nameX: input.nameX.toString(),
+          nameY: input.nameY.toString(),
+          nameFont: input.nameFont,
+          nameFontSize: input.nameFontSize,
+          nameColor: input.nameColor,
+          eventX: input.eventX.toString(),
+          eventY: input.eventY.toString(),
+          eventFont: input.eventFont,
+          eventFontSize: input.eventFontSize,
+          eventColor: input.eventColor,
+          collegeX: input.collegeX.toString(),
+          collegeY: input.collegeY.toString(),
+          collegeFont: input.collegeFont,
+          collegeFontSize: input.collegeFontSize,
+          collegeColor: input.collegeColor,
+          updatedAt: new Date(),
+        })
+        .where(eq(certificateTemplates.id, input.id));
+
+      return { success: true };
+    }),
+
   deleteTemplate: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {

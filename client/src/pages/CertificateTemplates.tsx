@@ -32,6 +32,7 @@ export default function CertificateTemplates() {
   const utils = trpc.useUtils();
   const { data: templates, isLoading } = trpc.sender.listTemplates.useQuery();
   const createMutation = trpc.sender.createTemplate.useMutation();
+  const updateMutation = trpc.sender.updateTemplate.useMutation();
   const deleteMutation = trpc.sender.deleteTemplate.useMutation();
 
   // Screen state
@@ -152,6 +153,27 @@ export default function CertificateTemplates() {
           collegeColor,
         });
         toast.success("Certificate template created successfully!");
+      } else if (view === "edit" && selectedTemplate) {
+        await updateMutation.mutateAsync({
+          id: selectedTemplate.id,
+          name,
+          nameX: absoluteNameX,
+          nameY: absoluteNameY,
+          nameFont,
+          nameFontSize,
+          nameColor,
+          eventX: absoluteEventX,
+          eventY: absoluteEventY,
+          eventFont,
+          eventFontSize,
+          eventColor,
+          collegeX: absoluteCollegeX,
+          collegeY: absoluteCollegeY,
+          collegeFont,
+          collegeFontSize,
+          collegeColor,
+        });
+        toast.success("Certificate template updated successfully!");
       }
 
       utils.sender.listTemplates.invalidate();
@@ -557,10 +579,10 @@ export default function CertificateTemplates() {
                     </Button>
                     <Button
                       onClick={handleSave}
-                      disabled={createMutation.isPending}
+                      disabled={createMutation.isPending || updateMutation.isPending}
                       className="bg-[#20B2AA] hover:bg-[#1a948e] text-white"
                     >
-                      {createMutation.isPending ? (
+                      {createMutation.isPending || updateMutation.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
                         </>
