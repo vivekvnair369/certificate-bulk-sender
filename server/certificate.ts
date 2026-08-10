@@ -18,6 +18,7 @@ export interface CertificateConfig {
   height: number;
   namePosition: TextPosition;
   eventPosition: TextPosition;
+  collegePosition?: TextPosition;
 }
 
 /**
@@ -26,7 +27,8 @@ export interface CertificateConfig {
 export async function generateCertificatePDF(
   config: CertificateConfig,
   participantName: string,
-  eventName: string
+  eventName: string,
+  collegeName?: string
 ): Promise<Buffer> {
   try {
     // Load the template image (accepts local path or Buffer in-memory)
@@ -52,6 +54,15 @@ export async function generateCertificatePDF(
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(eventName, config.eventPosition.x, config.eventPosition.y);
+
+    // Draw college name if configured and provided
+    if (config.collegePosition && collegeName) {
+      ctx.font = `${config.collegePosition.fontSize}px ${config.collegePosition.font}`;
+      ctx.fillStyle = config.collegePosition.color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(collegeName, config.collegePosition.x, config.collegePosition.y);
+    }
     
     // Convert canvas to image buffer
     const imageBuffer = canvas.toBuffer('image/png');
@@ -110,7 +121,7 @@ export function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
-export async function parseParticipantCSV(csvContent: string): Promise<Array<{ name: string; email: string; event: string }>> {
+export async function parseParticipantCSV(csvContent: string): Promise<Array<{ name: string; email: string; event: string; college?: string }>> {
   const { parse } = await import('csv-parse/sync');
   
   try {
@@ -154,6 +165,7 @@ export async function parseParticipantCSV(csvContent: string): Promise<Array<{ n
         name: getValue(["name", "participant name", "full name", "username", "student name", "candidate"]),
         email: getValue(["email", "email address", "mail", "mail id"]),
         event: getValue(["event", "event name", "symposium"]),
+        college: getValue(["college", "college name", "institution", "school", "university", "org", "organization"]),
       };
     });
     

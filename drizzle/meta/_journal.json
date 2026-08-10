@@ -8,6 +8,13 @@
       "when": 1785995372353,
       "tag": "0000_abnormal_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786378090103,
+      "tag": "0001_rich_sway",
+      "breakpoints": true
     }
   ]
 }

@@ -47,6 +47,13 @@ export const certificateTemplates = pgTable("certificate_templates", {
   eventFont: varchar("eventFont", { length: 100 }).default("Arial").notNull(),
   eventFontSize: integer("eventFontSize").default(32).notNull(),
   eventColor: varchar("eventColor", { length: 7 }).default("#000000").notNull(),
+
+  // College text positioning and styling
+  collegeX: decimal("collegeX", { precision: 10, scale: 2 }).notNull(),
+  collegeY: decimal("collegeY", { precision: 10, scale: 2 }).notNull(),
+  collegeFont: varchar("collegeFont", { length: 100 }).default("Arial").notNull(),
+  collegeFontSize: integer("collegeFontSize").default(32).notNull(),
+  collegeColor: varchar("collegeColor", { length: 7 }).default("#000000").notNull(),
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
@@ -64,6 +71,7 @@ export const participants = pgTable("participants", {
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   event: varchar("event", { length: 255 }).notNull(),
+  college: varchar("college", { length: 255 }),
   certificateUrl: text("certificateUrl"),
   certificateKey: varchar("certificateKey", { length: 255 }),
   sendStatus: sendStatusEnum("sendStatus").default("pending").notNull(),

@@ -66,6 +66,7 @@ export default function Participants() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [event, setEvent] = useState("");
+  const [college, setCollege] = useState("");
   const [currentEditParticipant, setCurrentEditParticipant] = useState<any>(null);
   const [csvContent, setCsvContent] = useState("");
 
@@ -103,12 +104,13 @@ export default function Participants() {
     }
 
     try {
-      await createMutation.mutateAsync({ name, email, event });
+      await createMutation.mutateAsync({ name, email, event, college });
       toast.success("Participant added successfully");
       setIsAddOpen(false);
       setName("");
       setEmail("");
       setEvent("");
+      setCollege("");
       utils.sender.listParticipants.invalidate();
     } catch (err: any) {
       toast.error(err.message || "Failed to add participant");
@@ -126,10 +128,15 @@ export default function Participants() {
         name,
         email,
         event,
+        college,
         sendStatus: currentEditParticipant.sendStatus,
       });
       toast.success("Participant details updated");
       setIsEditOpen(false);
+      setName("");
+      setEmail("");
+      setEvent("");
+      setCollege("");
       utils.sender.listParticipants.invalidate();
     } catch (err: any) {
       toast.error(err.message || "Failed to update participant");
@@ -162,7 +169,7 @@ export default function Participants() {
       setCsvContent("");
       utils.sender.listParticipants.invalidate();
     } catch (err: any) {
-      toast.error(err.message || "CSV parse error: ensure columns are named Name, Email, Event");
+      toast.error(err.message || "CSV parse error: ensure columns are named Name, Email, Event, College");
     }
   };
 
@@ -226,6 +233,7 @@ export default function Participants() {
     setName(participant.name);
     setEmail(participant.email);
     setEvent(participant.event);
+    setCollege(participant.college || "");
     setIsEditOpen(true);
   };
 
@@ -341,6 +349,7 @@ export default function Participants() {
                     <th className="py-4 px-6 font-semibold">Name</th>
                     <th className="py-4 px-6 font-semibold">Email</th>
                     <th className="py-4 px-6 font-semibold">Event Name</th>
+                    <th className="py-4 px-6 font-semibold">College</th>
                     <th className="py-4 px-6 font-semibold">Delivery Status</th>
                     <th className="py-4 px-6 font-semibold">Certificate</th>
                     <th className="py-4 px-6 font-semibold text-right">Actions</th>
@@ -362,6 +371,7 @@ export default function Participants() {
                         <td className="py-3.5 px-6 font-semibold text-[#0A2540]">{p.name}</td>
                         <td className="py-3.5 px-6 text-slate-500">{p.email}</td>
                         <td className="py-3.5 px-6 text-slate-500">{p.event}</td>
+                        <td className="py-3.5 px-6 text-slate-500">{p.college || <span className="text-slate-300">-</span>}</td>
                         <td className="py-3.5 px-6">
                           {p.sendStatus === "sent" ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">
@@ -460,6 +470,10 @@ export default function Participants() {
               <Label htmlFor="add-event">Event Name</Label>
               <Input id="add-event" value={event} onChange={e => setEvent(e.target.value)} placeholder="e.g. AI Hackathon 2026" className="border-slate-200" />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="add-college">College Name (Optional)</Label>
+              <Input id="add-college" value={college} onChange={e => setCollege(e.target.value)} placeholder="e.g. Stanford University" className="border-slate-200" />
+            </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)} className="border-slate-200">Cancel</Button>
               <Button type="submit" className="bg-[#20B2AA] hover:bg-[#1a948e] text-white">Add Participant</Button>
@@ -488,6 +502,10 @@ export default function Participants() {
               <Label htmlFor="edit-event">Event Name</Label>
               <Input id="edit-event" value={event} onChange={e => setEvent(e.target.value)} placeholder="Event" className="border-slate-200" />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-college">College Name (Optional)</Label>
+              <Input id="edit-college" value={college} onChange={e => setCollege(e.target.value)} placeholder="College Name" className="border-slate-200" />
+            </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="border-slate-200">Cancel</Button>
               <Button type="submit" className="bg-[#20B2AA] hover:bg-[#1a948e] text-white">Save Changes</Button>
@@ -511,7 +529,7 @@ export default function Participants() {
               </span>
               <p>Your CSV file should contain columns named exactly:</p>
               <p className="font-mono text-[#0A2540] bg-slate-200/50 p-1 rounded inline-block mt-1">
-                Name, Email, Event
+                Name, Email, Event, College
               </p>
             </div>
 

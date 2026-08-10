@@ -58,6 +58,12 @@ export default function CertificateTemplates() {
   const [eventFontSize, setEventFontSize] = useState(24);
   const [eventColor, setNameEventColor] = useState("#000000");
 
+  const [collegeX, setCollegeX] = useState(50);
+  const [collegeY, setCollegeY] = useState(55);
+  const [collegeFont, setCollegeFont] = useState("Arial");
+  const [collegeFontSize, setCollegeFontSize] = useState(24);
+  const [collegeColor, setCollegeColor] = useState("#000000");
+
   // Read file as base64 helper
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -96,6 +102,11 @@ export default function CertificateTemplates() {
     setEventFont("Arial");
     setEventFontSize(24);
     setNameEventColor("#000000");
+    setCollegeX(50);
+    setCollegeY(55);
+    setCollegeFont("Arial");
+    setCollegeFontSize(24);
+    setCollegeColor("#000000");
   };
 
   // Submit layout details
@@ -116,6 +127,8 @@ export default function CertificateTemplates() {
       const absoluteNameY = Math.round((nameY / 100) * previewHeight);
       const absoluteEventX = Math.round((eventX / 100) * previewWidth);
       const absoluteEventY = Math.round((eventY / 100) * previewHeight);
+      const absoluteCollegeX = Math.round((collegeX / 100) * previewWidth);
+      const absoluteCollegeY = Math.round((collegeY / 100) * previewHeight);
 
       if (view === "create") {
         await createMutation.mutateAsync({
@@ -132,6 +145,11 @@ export default function CertificateTemplates() {
           eventFont,
           eventFontSize,
           eventColor,
+          collegeX: absoluteCollegeX,
+          collegeY: absoluteCollegeY,
+          collegeFont,
+          collegeFontSize,
+          collegeColor,
         });
         toast.success("Certificate template created successfully!");
       }
@@ -456,6 +474,73 @@ export default function CertificateTemplates() {
                           <Slider value={[eventY]} onValueChange={([val]) => setEventY(val)} max={100} step={1} />
                         </div>
                       </div>
+
+                      {/* College styling */}
+                      <div className="space-y-3 pt-4 border-t">
+                        <span className="text-sm font-bold text-[#0A2540] flex items-center gap-1">
+                          <Type className="h-3.5 w-3.5" /> College Name Variable
+                        </span>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <Label className="text-[11px] text-slate-500">Font Family</Label>
+                            <Select value={collegeFont} onValueChange={setCollegeFont}>
+                              <SelectTrigger className="h-8 text-xs border-slate-200">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FONT_OPTIONS.map(f => (
+                                  <SelectItem key={f} value={f} className="text-xs">{f}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label className="text-[11px] text-slate-500">Font Size (px)</Label>
+                            <Input 
+                              type="number" 
+                              className="h-8 text-xs border-slate-200"
+                              value={collegeFontSize}
+                              onChange={(e) => setCollegeFontSize(parseInt(e.target.value) || 12)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <Label className="text-[11px] text-slate-500">Font Color (Hex)</Label>
+                          <div className="flex gap-2">
+                            <Input 
+                              type="color" 
+                              className="w-8 h-8 p-0.5 border border-slate-200 rounded cursor-pointer"
+                              value={collegeColor}
+                              onChange={(e) => setCollegeColor(e.target.value)}
+                            />
+                            <Input 
+                              type="text" 
+                              className="h-8 text-xs flex-1 border-slate-200 uppercase font-mono"
+                              value={collegeColor}
+                              onChange={(e) => setCollegeColor(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <Label className="text-[11px] text-slate-500">Horizontal Alignment (X)</Label>
+                            <span className="text-[11px] font-semibold">{collegeX}%</span>
+                          </div>
+                          <Slider value={[collegeX]} onValueChange={([val]) => setCollegeX(val)} max={100} step={1} />
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <Label className="text-[11px] text-slate-500">Vertical Alignment (Y)</Label>
+                            <span className="text-[11px] font-semibold">{collegeY}%</span>
+                          </div>
+                          <Slider value={[collegeY]} onValueChange={([val]) => setCollegeY(val)} max={100} step={1} />
+                        </div>
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -528,6 +613,20 @@ export default function CertificateTemplates() {
                         }}
                       >
                         [ Event Name ]
+                      </div>
+
+                      <div 
+                        className="absolute -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none text-center whitespace-nowrap"
+                        style={{
+                          left: `${collegeX}%`,
+                          top: `${collegeY}%`,
+                          fontFamily: collegeFont,
+                          fontSize: `${collegeFontSize / 2}px`, // Scaled for preview container
+                          color: collegeColor,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        [ College Name ]
                       </div>
                     </div>
                   ) : (

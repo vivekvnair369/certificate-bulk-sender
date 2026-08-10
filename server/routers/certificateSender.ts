@@ -116,6 +116,11 @@ export const certificateSenderRouter = router({
         eventFont: z.string().default("Arial"),
         eventFontSize: z.number().default(32),
         eventColor: z.string().default("#000000"),
+        collegeX: z.number(),
+        collegeY: z.number(),
+        collegeFont: z.string().default("Arial"),
+        collegeFontSize: z.number().default(32),
+        collegeColor: z.string().default("#000000"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -150,6 +155,11 @@ export const certificateSenderRouter = router({
         eventFont: input.eventFont,
         eventFontSize: input.eventFontSize,
         eventColor: input.eventColor,
+        collegeX: input.collegeX.toString(),
+        collegeY: input.collegeY.toString(),
+        collegeFont: input.collegeFont,
+        collegeFontSize: input.collegeFontSize,
+        collegeColor: input.collegeColor,
       });
 
       return { success: true };
@@ -182,6 +192,7 @@ export const certificateSenderRouter = router({
         name: z.string().min(1, "Name is required"),
         email: z.string().email("Invalid email format"),
         event: z.string().min(1, "Event name is required"),
+        college: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -190,6 +201,7 @@ export const certificateSenderRouter = router({
         name: input.name,
         email: input.email,
         event: input.event,
+        college: input.college || null,
         sendStatus: "pending",
         sendAttempts: 0,
       });
@@ -203,6 +215,7 @@ export const certificateSenderRouter = router({
         name: z.string().min(1, "Name is required"),
         email: z.string().email("Invalid email format"),
         event: z.string().min(1, "Event name is required"),
+        college: z.string().optional(),
         sendStatus: z.enum(["pending", "sent", "failed"]).optional(),
       })
     )
@@ -211,6 +224,7 @@ export const certificateSenderRouter = router({
         name: input.name,
         email: input.email,
         event: input.event,
+        college: input.college || null,
         ...(input.sendStatus ? { sendStatus: input.sendStatus } : {}),
       });
       return { success: true };
@@ -247,6 +261,7 @@ export const certificateSenderRouter = router({
           name: record.name,
           email: record.email,
           event: record.event,
+          college: record.college || null,
           sendStatus: "pending",
           sendAttempts: 0,
         });
@@ -394,9 +409,17 @@ async function processBulkEmailsBackground(
             fontSize: certTemplate.eventFontSize,
             color: certTemplate.eventColor,
           },
+          collegePosition: certTemplate.collegeX && certTemplate.collegeY ? {
+            x: parseFloat(certTemplate.collegeX),
+            y: parseFloat(certTemplate.collegeY),
+            font: certTemplate.collegeFont,
+            fontSize: certTemplate.collegeFontSize,
+            color: certTemplate.collegeColor,
+          } : undefined,
         },
         participant.name,
-        participant.event
+        participant.event,
+        participant.college || undefined
       );
 
       // Upload PDF to S3 storage
