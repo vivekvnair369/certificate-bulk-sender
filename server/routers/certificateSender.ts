@@ -340,6 +340,19 @@ export const certificateSenderRouter = router({
       const userId = ctx.user.id;
       const { participantIds, templateId } = input;
 
+      const db = await getDb();
+      if (db && participantIds.length > 0) {
+        // Reset status to pending and increment attempts so the frontend starts polling in real-time
+        await db
+          .update(participants)
+          .set({
+            sendStatus: "pending",
+            sendAttempts: 1,
+            lastError: null,
+          })
+          .where(inArray(participants.id, participantIds));
+      }
+
       // Kick off background execution thread (does not block HTTP response)
       processBulkEmailsBackground(userId, participantIds, templateId).catch(err => {
         console.error("[Bulk Sender Worker] Fatal execution error:", err);
