@@ -26,7 +26,15 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-const FONT_OPTIONS = ["Arial", "Georgia", "Courier New", "Impact", "Times New Roman"];
+const FONT_OPTIONS = [
+  "Times New Roman",
+  "Arial",
+  "Georgia",
+  "Montserrat",
+  "Playfair Display",
+  "Great Vibes",
+  "Alex Brush"
+];
 
 export default function CertificateTemplates() {
   const utils = trpc.useUtils();

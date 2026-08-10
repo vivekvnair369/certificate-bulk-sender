@@ -1,8 +1,53 @@
-import { createCanvas, loadImage } from 'canvas';
+import { createCanvas, loadImage, registerFont } from 'canvas';
 import { PDFDocument, rgb } from 'pdf-lib';
 import sharp from 'sharp';
 import * as fs from 'fs';
 import * as path from 'path';
+
+// Register custom TTF fonts for PDF rendering
+const fontsPath = path.join(process.cwd(), 'server/assets/fonts');
+
+const registerFontSafely = (file: string, family: string, weight?: string, style?: string) => {
+  const fullPath = path.join(fontsPath, file);
+  if (fs.existsSync(fullPath)) {
+    try {
+      registerFont(fullPath, { family, weight, style });
+      console.log(`[Font Registry] Registered custom font: ${family} (${file})`);
+    } catch (e: any) {
+      console.error(`[Font Registry] Failed to register custom font ${family}:`, e.message);
+    }
+  } else {
+    console.warn(`[Font Registry] Custom font file not found at ${fullPath}`);
+  }
+};
+
+// Custom Google Fonts
+registerFontSafely('GreatVibes-Regular.ttf', 'Great Vibes');
+registerFontSafely('AlexBrush-Regular.ttf', 'Alex Brush');
+registerFontSafely('Montserrat-Regular.ttf', 'Montserrat');
+
+// Register standard Windows fonts if running on Windows
+if (process.platform === 'win32') {
+  const winFontsPath = 'C:\\Windows\\Fonts';
+  const registerWinFont = (file: string, family: string, weight?: string, style?: string) => {
+    const fullPath = path.join(winFontsPath, file);
+    if (fs.existsSync(fullPath)) {
+      try {
+        registerFont(fullPath, { family, weight, style });
+        console.log(`[Font Registry] Registered system Windows font: ${family} (${file})`);
+      } catch (e) {}
+    }
+  };
+  registerWinFont('times.ttf', 'Times New Roman');
+  registerWinFont('timesbd.ttf', 'Times New Roman', 'bold');
+  registerWinFont('timesi.ttf', 'Times New Roman', undefined, 'italic');
+  registerWinFont('arial.ttf', 'Arial');
+  registerWinFont('arialbd.ttf', 'Arial', 'bold');
+  registerWinFont('georgia.ttf', 'Georgia');
+  registerWinFont('georgiab.ttf', 'Georgia', 'bold');
+  registerWinFont('verdana.ttf', 'Verdana');
+}
+
 
 export interface TextPosition {
   x: number;
