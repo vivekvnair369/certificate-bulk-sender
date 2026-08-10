@@ -5,19 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
-import { 
-  FileText, 
-  Plus, 
-  Trash2, 
-  Edit3, 
-  ArrowLeft, 
+import {
+  FileText,
+  Plus,
+  Trash2,
+  Edit3,
+  ArrowLeft,
   Image as ImageIcon,
   Type,
   Layout,
@@ -48,20 +48,20 @@ export default function CertificateTemplates() {
   // Layout Positioning state (0 to 100 percents)
   const [nameX, setNameX] = useState(50);
   const [nameY, setNameY] = useState(45);
-  const [nameFont, setNameFont] = useState("Arial");
-  const [nameFontSize, setNameFontSize] = useState(36);
+  const [nameFont, setNameFont] = useState("Times New Roman");
+  const [nameFontSize, setNameFontSize] = useState(19);
   const [nameColor, setNameColor] = useState("#000000");
 
   const [eventX, setEventX] = useState(50);
   const [eventY, setEventY] = useState(65);
-  const [eventFont, setEventFont] = useState("Arial");
-  const [eventFontSize, setEventFontSize] = useState(24);
+  const [eventFont, setEventFont] = useState("Times New Roman");
+  const [eventFontSize, setEventFontSize] = useState(19);
   const [eventColor, setNameEventColor] = useState("#000000");
 
   const [collegeX, setCollegeX] = useState(50);
   const [collegeY, setCollegeY] = useState(55);
-  const [collegeFont, setCollegeFont] = useState("Arial");
-  const [collegeFontSize, setCollegeFontSize] = useState(24);
+  const [collegeFont, setCollegeFont] = useState("Times New Roman");
+  const [collegeFontSize, setCollegeFontSize] = useState(19);
   const [collegeColor, setCollegeColor] = useState("#000000");
 
   // Read file as base64 helper
@@ -229,8 +229,8 @@ export default function CertificateTemplates() {
               {templates.map((template) => (
                 <Card key={template.id} className="border-0 shadow-sm overflow-hidden bg-white flex flex-col group">
                   <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden border-b flex items-center justify-center">
-                    <img 
-                      src={template.imageUrl} 
+                    <img
+                      src={template.imageUrl}
                       alt={template.name}
                       className="object-contain w-full h-full group-hover:scale-[1.02] transition-transform duration-300"
                     />
@@ -242,17 +242,17 @@ export default function CertificateTemplates() {
                     </CardDescription>
                   </CardHeader>
                   <CardFooter className="p-4 bg-slate-50/50 border-t flex justify-end gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => enterEditMode(template)}
                       className="text-[#0A2540] border-slate-200"
                     >
                       <Edit3 className="h-3.5 w-3.5 mr-1" /> View Config
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleDelete(template.id)}
                       className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
                     >
@@ -302,8 +302,8 @@ export default function CertificateTemplates() {
                   {/* Template Name */}
                   <div className="space-y-2">
                     <Label htmlFor="template-name">Template Name</Label>
-                    <Input 
-                      id="template-name" 
+                    <Input
+                      id="template-name"
                       placeholder="e.g. Hackathon Winner Certificate"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -322,9 +322,9 @@ export default function CertificateTemplates() {
                             <Plus className="h-6 w-6 text-slate-400 mb-1" />
                             <p className="text-xs text-slate-500 font-medium">Click to select image file</p>
                           </div>
-                          <input 
-                            type="file" 
-                            className="hidden" 
+                          <input
+                            type="file"
+                            className="hidden"
                             accept="image/*"
                             onChange={handleImageChange}
                           />
@@ -364,8 +364,8 @@ export default function CertificateTemplates() {
 
                           <div className="space-y-1">
                             <Label className="text-[11px] text-slate-500">Font Size (px)</Label>
-                            <Input 
-                              type="number" 
+                            <Input
+                              type="number"
                               className="h-8 text-xs border-slate-200"
                               value={nameFontSize}
                               onChange={(e) => setNameFontSize(parseInt(e.target.value) || 12)}
@@ -376,14 +376,14 @@ export default function CertificateTemplates() {
                         <div className="space-y-1">
                           <Label className="text-[11px] text-slate-500">Font Color (Hex)</Label>
                           <div className="flex gap-2">
-                            <Input 
-                              type="color" 
+                            <Input
+                              type="color"
                               className="w-8 h-8 p-0.5 border border-slate-200 rounded cursor-pointer"
                               value={nameColor}
                               onChange={(e) => setNameColor(e.target.value)}
                             />
-                            <Input 
-                              type="text" 
+                            <Input
+                              type="text"
                               className="h-8 text-xs flex-1 border-slate-200 uppercase font-mono"
                               value={nameColor}
                               onChange={(e) => setNameColor(e.target.value)}
@@ -431,8 +431,8 @@ export default function CertificateTemplates() {
 
                           <div className="space-y-1">
                             <Label className="text-[11px] text-slate-500">Font Size (px)</Label>
-                            <Input 
-                              type="number" 
+                            <Input
+                              type="number"
                               className="h-8 text-xs border-slate-200"
                               value={eventFontSize}
                               onChange={(e) => setEventFontSize(parseInt(e.target.value) || 12)}
@@ -443,14 +443,14 @@ export default function CertificateTemplates() {
                         <div className="space-y-1">
                           <Label className="text-[11px] text-slate-500">Font Color (Hex)</Label>
                           <div className="flex gap-2">
-                            <Input 
-                              type="color" 
+                            <Input
+                              type="color"
                               className="w-8 h-8 p-0.5 border border-slate-200 rounded cursor-pointer"
                               value={nameColor} // reuse or separate if needed
                               onChange={(e) => setNameEventColor(e.target.value)}
                             />
-                            <Input 
-                              type="text" 
+                            <Input
+                              type="text"
                               className="h-8 text-xs flex-1 border-slate-200 uppercase font-mono"
                               value={eventColor}
                               onChange={(e) => setNameEventColor(e.target.value)}
@@ -498,8 +498,8 @@ export default function CertificateTemplates() {
 
                           <div className="space-y-1">
                             <Label className="text-[11px] text-slate-500">Font Size (px)</Label>
-                            <Input 
-                              type="number" 
+                            <Input
+                              type="number"
                               className="h-8 text-xs border-slate-200"
                               value={collegeFontSize}
                               onChange={(e) => setCollegeFontSize(parseInt(e.target.value) || 12)}
@@ -510,14 +510,14 @@ export default function CertificateTemplates() {
                         <div className="space-y-1">
                           <Label className="text-[11px] text-slate-500">Font Color (Hex)</Label>
                           <div className="flex gap-2">
-                            <Input 
-                              type="color" 
+                            <Input
+                              type="color"
                               className="w-8 h-8 p-0.5 border border-slate-200 rounded cursor-pointer"
                               value={collegeColor}
                               onChange={(e) => setCollegeColor(e.target.value)}
                             />
-                            <Input 
-                              type="text" 
+                            <Input
+                              type="text"
                               className="h-8 text-xs flex-1 border-slate-200 uppercase font-mono"
                               value={collegeColor}
                               onChange={(e) => setCollegeColor(e.target.value)}
@@ -549,8 +549,8 @@ export default function CertificateTemplates() {
                     <Button variant="outline" onClick={() => setView("list")} className="border-slate-200">
                       Cancel
                     </Button>
-                    <Button 
-                      onClick={handleSave} 
+                    <Button
+                      onClick={handleSave}
                       disabled={createMutation.isPending}
                       className="bg-[#20B2AA] hover:bg-[#1a948e] text-white"
                     >
@@ -579,15 +579,15 @@ export default function CertificateTemplates() {
                 <CardContent className="flex-1 bg-slate-50/50 p-6 flex items-center justify-center min-h-[300px]">
                   {imageBase64 ? (
                     <div className="relative shadow-lg border rounded overflow-hidden max-w-full" style={{ maxHeight: "550px" }}>
-                      <img 
-                        src={imageBase64} 
+                      <img
+                        src={imageBase64}
                         alt="Live Editor Preview"
                         className="object-contain max-w-full"
                         style={{ maxHeight: "550px" }}
                       />
 
                       {/* Overlays */}
-                      <div 
+                      <div
                         className="absolute -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none text-center whitespace-nowrap"
                         style={{
                           left: `${nameX}%`,
@@ -601,7 +601,7 @@ export default function CertificateTemplates() {
                         [ Participant Name ]
                       </div>
 
-                      <div 
+                      <div
                         className="absolute -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none text-center whitespace-nowrap"
                         style={{
                           left: `${eventX}%`,
@@ -615,7 +615,7 @@ export default function CertificateTemplates() {
                         [ Event Name ]
                       </div>
 
-                      <div 
+                      <div
                         className="absolute -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none text-center whitespace-nowrap"
                         style={{
                           left: `${collegeX}%`,
