@@ -195,6 +195,12 @@ export default function CertificateTemplates() {
     setEventFontSize(template.eventFontSize);
     setNameEventColor(template.eventColor);
 
+    setCollegeX(template.collegeX ? Math.round((parseFloat(template.collegeX) / template.width) * 100) : 50);
+    setCollegeY(template.collegeY ? Math.round((parseFloat(template.collegeY) / template.height) * 100) : 55);
+    setCollegeFont(template.collegeFont || "Times New Roman");
+    setCollegeFontSize(template.collegeFontSize || 19);
+    setCollegeColor(template.collegeColor || "#000000");
+
     // Set signed URL for editing visual overlay
     setImageBase64(template.imageUrl);
     setView("edit");
@@ -446,7 +452,7 @@ export default function CertificateTemplates() {
                             <Input
                               type="color"
                               className="w-8 h-8 p-0.5 border border-slate-200 rounded cursor-pointer"
-                              value={nameColor} // reuse or separate if needed
+                              value={eventColor} // Fix nameColor reference bug
                               onChange={(e) => setNameEventColor(e.target.value)}
                             />
                             <Input
