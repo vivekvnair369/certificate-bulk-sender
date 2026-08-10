@@ -58,19 +58,19 @@ export default function CertificateTemplates() {
   const [nameX, setNameX] = useState(50);
   const [nameY, setNameY] = useState(45);
   const [nameFont, setNameFont] = useState("Times New Roman");
-  const [nameFontSize, setNameFontSize] = useState(19);
+  const [nameFontSize, setNameFontSize] = useState(64);
   const [nameColor, setNameColor] = useState("#000000");
 
   const [eventX, setEventX] = useState(50);
   const [eventY, setEventY] = useState(65);
   const [eventFont, setEventFont] = useState("Times New Roman");
-  const [eventFontSize, setEventFontSize] = useState(19);
+  const [eventFontSize, setEventFontSize] = useState(40);
   const [eventColor, setNameEventColor] = useState("#000000");
 
   const [collegeX, setCollegeX] = useState(50);
   const [collegeY, setCollegeY] = useState(55);
   const [collegeFont, setCollegeFont] = useState("Times New Roman");
-  const [collegeFontSize, setCollegeFontSize] = useState(19);
+  const [collegeFontSize, setCollegeFontSize] = useState(40);
   const [collegeColor, setCollegeColor] = useState("#000000");
 
   // Read file as base64 helper
@@ -103,18 +103,18 @@ export default function CertificateTemplates() {
     setImageBase64("");
     setNameX(50);
     setNameY(45);
-    setNameFont("Arial");
-    setNameFontSize(36);
+    setNameFont("Times New Roman");
+    setNameFontSize(64);
     setNameColor("#000000");
     setEventX(50);
     setEventY(65);
-    setEventFont("Arial");
-    setEventFontSize(24);
+    setEventFont("Times New Roman");
+    setEventFontSize(40);
     setNameEventColor("#000000");
     setCollegeX(50);
     setCollegeY(55);
-    setCollegeFont("Arial");
-    setCollegeFontSize(24);
+    setCollegeFont("Times New Roman");
+    setCollegeFontSize(40);
     setCollegeColor("#000000");
   };
 
@@ -614,7 +614,7 @@ export default function CertificateTemplates() {
                 </CardHeader>
                 <CardContent className="flex-1 bg-slate-50/50 p-6 flex items-center justify-center min-h-[300px]">
                   {imageBase64 ? (
-                    <div className="relative shadow-lg border rounded overflow-hidden max-w-full" style={{ maxHeight: "550px" }}>
+                    <div className="relative shadow-lg border rounded overflow-hidden max-w-full" style={{ maxHeight: "550px", containerType: "inline-size" }}>
                       <img
                         src={imageBase64}
                         alt="Live Editor Preview"
@@ -629,7 +629,7 @@ export default function CertificateTemplates() {
                           left: `${nameX}%`,
                           top: `${nameY}%`,
                           fontFamily: nameFont,
-                          fontSize: `${nameFontSize / 2}px`, // Scaled for preview container
+                          fontSize: `${(nameFontSize / (previewWidth || 800)) * 100}cqw`, // Scaled dynamically relative to image container width
                           color: nameColor,
                           fontWeight: "bold",
                         }}
@@ -643,7 +643,7 @@ export default function CertificateTemplates() {
                           left: `${eventX}%`,
                           top: `${eventY}%`,
                           fontFamily: eventFont,
-                          fontSize: `${eventFontSize / 2}px`, // Scaled for preview container
+                          fontSize: `${(eventFontSize / (previewWidth || 800)) * 100}cqw`, // Scaled dynamically relative to image container width
                           color: eventColor,
                           fontWeight: "bold",
                         }}
@@ -657,7 +657,7 @@ export default function CertificateTemplates() {
                           left: `${collegeX}%`,
                           top: `${collegeY}%`,
                           fontFamily: collegeFont,
-                          fontSize: `${collegeFontSize / 2}px`, // Scaled for preview container
+                          fontSize: `${(collegeFontSize / (previewWidth || 800)) * 100}cqw`, // Scaled dynamically relative to image container width
                           color: collegeColor,
                           fontWeight: "bold",
                         }}
