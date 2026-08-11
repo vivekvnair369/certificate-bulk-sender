@@ -89,14 +89,14 @@ export async function generateCertificatePDF(
     ctx.drawImage(image, 0, 0, config.width, config.height);
     
     // Draw participant name
-    ctx.font = `${config.namePosition.fontSize}px "${config.namePosition.font}"`;
+    ctx.font = `${config.namePosition.fontSize}px ${config.namePosition.font}`;
     ctx.fillStyle = config.namePosition.color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(participantName, config.namePosition.x, config.namePosition.y);
     
     // Draw event name
-    ctx.font = `${config.eventPosition.fontSize}px "${config.eventPosition.font}"`;
+    ctx.font = `${config.eventPosition.fontSize}px ${config.eventPosition.font}`;
     ctx.fillStyle = config.eventPosition.color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -104,7 +104,7 @@ export async function generateCertificatePDF(
 
     // Draw college name if configured and provided
     if (config.collegePosition && collegeName) {
-      ctx.font = `${config.collegePosition.fontSize}px "${config.collegePosition.font}"`;
+      ctx.font = `${config.collegePosition.fontSize}px ${config.collegePosition.font}`;
       ctx.fillStyle = config.collegePosition.color;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
