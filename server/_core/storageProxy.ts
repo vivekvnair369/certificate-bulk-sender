@@ -11,6 +11,29 @@ export function registerStorageProxy(app: Express) {
     fs.mkdirSync(STORAGE_DIR, { recursive: true });
   }
 
+  // Enable CORS for local storage and proxy endpoints
+  app.use("/manus-storage", (req, res, next) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Headers", "*");
+    res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+    if (req.method === "OPTIONS") {
+      res.sendStatus(200);
+      return;
+    }
+    next();
+  });
+
+  app.use("/v1/storage", (req, res, next) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Headers", "*");
+    res.set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
+    if (req.method === "OPTIONS") {
+      res.sendStatus(200);
+      return;
+    }
+    next();
+  });
+
   // 1. Mock Presigned PUT URL Generator
   app.get("/v1/storage/presign/put", (req, res) => {
     const filePath = req.query.path as string;
@@ -133,17 +156,46 @@ export function registerStorageProxy(app: Express) {
       return;
     }
 
-    // If using the local mock server
+    // If using the local mock server, serve files directly
     if (ENV.forgeApiUrl.includes("localhost") || ENV.forgeApiUrl.includes("127.0.0.1") || !ENV.forgeApiKey) {
-      const host = req.get("host") || "localhost:3000";
-      const protocol = req.protocol || "http";
-      const encodedKey = key
-        .split("/")
-        .map(segment => encodeURIComponent(segment))
-        .join("/");
-      const redirectUrl = `${protocol}://${host}/v1/storage/files/${encodedKey}`;
-      console.log(`[StorageProxy] Local mock redirecting to: ${redirectUrl}`);
-      res.redirect(307, redirectUrl);
+      const dest = path.join(STORAGE_DIR, key);
+      console.log(`[StorageProxy] Local mock serving manus-storage file directly from: ${dest}`);
+
+      if (!dest.startsWith(STORAGE_DIR)) {
+        console.warn(`[StorageProxy] Path traversal prevented on manus-storage`);
+        res.status(403).send("Forbidden path");
+        return;
+      }
+
+      if (fs.existsSync(dest)) {
+        const ext = path.extname(dest).toLowerCase();
+        const isImage = [".jpg", ".jpeg", ".png", ".webp"].includes(ext);
+
+        if (isImage) {
+          try {
+            const image = sharp(dest);
+            const metadata = await image.metadata();
+
+            if (metadata.width && metadata.width > 2000) {
+              console.log(`[StorageProxy] Resizing manus-storage image from ${metadata.width}px to 2000px for web preview`);
+              const resizedBuffer = await image
+                .resize({ width: 2000, withoutEnlargement: true })
+                .toBuffer();
+
+              res.set("Content-Type", ext === ".png" ? "image/png" : "image/jpeg");
+              res.send(resizedBuffer);
+              return;
+            }
+          } catch (err) {
+            console.error(`[StorageProxy] Failed to resize manus-storage image:`, err);
+          }
+        }
+
+        res.sendFile(dest);
+      } else {
+        console.warn(`[StorageProxy] manus-storage File not found: ${dest}`);
+        res.status(404).send("File not found");
+      }
       return;
     }
 
