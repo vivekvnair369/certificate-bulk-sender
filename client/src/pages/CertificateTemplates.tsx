@@ -54,6 +54,11 @@ export default function CertificateTemplates() {
   const [previewWidth, setPreviewWidth] = useState(800);
   const [previewHeight, setPreviewHeight] = useState(600);
 
+  // Test data for live preview pasting/typing
+  const [testName, setTestName] = useState("John Doe");
+  const [testEvent, setTestEvent] = useState("National Web Symposium");
+  const [testCollege, setTestCollege] = useState("Kuppam Engineering College");
+
   // Layout Positioning state (0 to 100 percents)
   const [nameX, setNameX] = useState(50);
   const [nameY, setNameY] = useState(45);
@@ -377,6 +382,16 @@ export default function CertificateTemplates() {
                   {/* Attribute Styling & Position */}
                   {imageBase64 && (
                     <div className="space-y-6 pt-4 border-t">
+                      {previewWidth > 2500 && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 space-y-1">
+                          <p className="font-semibold flex items-center gap-1">
+                            ⚠️ High-Resolution Image ({previewWidth}x{previewHeight}px)
+                          </p>
+                          <p className="text-slate-600 leading-normal">
+                            Since your template is very large, please increase your Font Size values (e.g. <strong>150px - 500px</strong>) to make the text overlay clearly visible.
+                          </p>
+                        </div>
+                      )}
                       {/* Name styling */}
                       <div className="space-y-3">
                         <span className="text-sm font-bold text-[#0A2540] flex items-center gap-1">
@@ -611,6 +626,39 @@ export default function CertificateTemplates() {
                 <CardHeader className="pb-3 border-b">
                   <CardTitle className="text-base text-[#0A2540]">Live Preview Sandbox</CardTitle>
                   <CardDescription>Visual rendering of text overlays on template sheet</CardDescription>
+
+                  {/* Test Data Input Fields for Editing/Changing Area */}
+                  {imageBase64 && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 pt-3 border-t">
+                      <div className="space-y-1">
+                        <Label className="text-[11px] text-slate-500 font-semibold">Test Participant Name</Label>
+                        <Input
+                          className="h-8 text-xs border-slate-200 focus-visible:ring-[#20B2AA]"
+                          placeholder="e.g. John Doe"
+                          value={testName}
+                          onChange={(e) => setTestName(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[11px] text-slate-500 font-semibold">Test Event Name</Label>
+                        <Input
+                          className="h-8 text-xs border-slate-200 focus-visible:ring-[#20B2AA]"
+                          placeholder="e.g. Web Symposium"
+                          value={testEvent}
+                          onChange={(e) => setTestEvent(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[11px] text-slate-500 font-semibold">Test College Name</Label>
+                        <Input
+                          className="h-8 text-xs border-slate-200 focus-visible:ring-[#20B2AA]"
+                          placeholder="e.g. Kuppam Engineering College"
+                          value={testCollege}
+                          onChange={(e) => setTestCollege(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="flex-1 bg-slate-50/50 p-6 flex items-center justify-center min-h-[300px]">
                   {imageBase64 ? (
@@ -634,7 +682,7 @@ export default function CertificateTemplates() {
                           fontWeight: "bold",
                         }}
                       >
-                        [ Participant Name ]
+                        {testName || "[ Participant Name ]"}
                       </div>
 
                       <div
@@ -648,7 +696,7 @@ export default function CertificateTemplates() {
                           fontWeight: "bold",
                         }}
                       >
-                        [ Event Name ]
+                        {testEvent || "[ Event Name ]"}
                       </div>
 
                       <div
@@ -662,7 +710,7 @@ export default function CertificateTemplates() {
                           fontWeight: "bold",
                         }}
                       >
-                        [ College Name ]
+                        {testCollege || "[ College Name ]"}
                       </div>
                     </div>
                   ) : (
