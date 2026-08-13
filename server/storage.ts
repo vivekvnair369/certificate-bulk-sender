@@ -3,6 +3,8 @@
 // Downloads return /manus-storage/{key} paths served via 307 redirect.
 
 import { ENV } from "./_core/env";
+import fs from "fs";
+import path from "path";
 
 function getForgeConfig() {
   const forgeUrl = ENV.forgeApiUrl;
@@ -33,8 +35,22 @@ export async function storagePut(
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream",
 ): Promise<{ key: string; url: string }> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
+  const forgeUrl = ENV.forgeApiUrl;
+  const forgeKey = ENV.forgeApiKey;
   const key = appendHashSuffix(normalizeKey(relKey));
+
+  // If no Forge S3 config is provided, save directly to local disk storage
+  if (!forgeUrl || !forgeKey || forgeUrl.includes("localhost") || forgeUrl.includes("127.0.0.1")) {
+    const STORAGE_DIR = process.env.VERCEL ? "/tmp/storage" : path.resolve("./storage");
+    const dest = path.join(STORAGE_DIR, key);
+
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    const buffer = typeof data === "string" ? Buffer.from(data) : Buffer.from(data as any);
+    fs.writeFileSync(dest, buffer);
+
+    console.log(`[StorageLocal] Saved file directly to local storage: ${dest}`);
+    return { key, url: `/manus-storage/${key}` };
+  }
 
   // 1. Get presigned PUT URL from Forge
   const presignUrl = new URL("v1/storage/presign/put", forgeUrl + "/");
@@ -77,8 +93,14 @@ export async function storageGet(relKey: string): Promise<{ key: string; url: st
 }
 
 export async function storageGetSignedUrl(relKey: string): Promise<string> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
+  const forgeUrl = ENV.forgeApiUrl;
+  const forgeKey = ENV.forgeApiKey;
   const key = normalizeKey(relKey);
+
+  // If no Forge S3 config is provided, return direct local path
+  if (!forgeUrl || !forgeKey || forgeUrl.includes("localhost") || forgeUrl.includes("127.0.0.1")) {
+    return `/manus-storage/${key}`;
+  }
 
   const getUrl = new URL("v1/storage/presign/get", forgeUrl + "/");
   getUrl.searchParams.set("path", key);
