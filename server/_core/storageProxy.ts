@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { ENV } from "./env";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 export function registerStorageProxy(app: Express) {
   // Ensure the local storage directory exists
@@ -80,18 +81,45 @@ export function registerStorageProxy(app: Express) {
   });
 
   // 4. Serve Static Uploaded Files
-  app.get("/v1/storage/files/*", (req, res) => {
+  app.get("/v1/storage/files/*", async (req, res) => {
     const relPath = (req.params as Record<string, string>)[0];
     const dest = path.join(STORAGE_DIR, relPath);
+    console.log(`[StorageProxy] GET files. Path: ${relPath}, Resolved Dest: ${dest}`);
 
     if (!dest.startsWith(STORAGE_DIR)) {
+      console.warn(`[StorageProxy] GET files Forbidden: path traversal attempted`);
       res.status(403).send("Forbidden path");
       return;
     }
 
     if (fs.existsSync(dest)) {
+      const ext = path.extname(dest).toLowerCase();
+      const isImage = [".jpg", ".jpeg", ".png", ".webp"].includes(ext);
+
+      if (isImage) {
+        try {
+          const image = sharp(dest);
+          const metadata = await image.metadata();
+
+          if (metadata.width && metadata.width > 2000) {
+            console.log(`[StorageProxy] Resizing large image from ${metadata.width}px to 2000px for web preview`);
+            const resizedBuffer = await image
+              .resize({ width: 2000, withoutEnlargement: true })
+              .toBuffer();
+
+            res.set("Content-Type", ext === ".png" ? "image/png" : "image/jpeg");
+            res.send(resizedBuffer);
+            return;
+          }
+        } catch (err) {
+          console.error(`[StorageProxy] Failed to resize large image on the fly:`, err);
+        }
+      }
+
+      console.log(`[StorageProxy] GET files Found, sending file.`);
       res.sendFile(dest);
     } else {
+      console.warn(`[StorageProxy] GET files Not Found: ${dest}`);
       res.status(404).send("File not found");
     }
   });
@@ -99,6 +127,7 @@ export function registerStorageProxy(app: Express) {
   // 5. Proxy download /manus-storage/* route
   app.get("/manus-storage/*", async (req, res) => {
     const key = (req.params as Record<string, string>)[0];
+    console.log(`[StorageProxy] GET manus-storage key: ${key}`);
     if (!key) {
       res.status(400).send("Missing storage key");
       return;
@@ -112,7 +141,9 @@ export function registerStorageProxy(app: Express) {
         .split("/")
         .map(segment => encodeURIComponent(segment))
         .join("/");
-      res.redirect(307, `${protocol}://${host}/v1/storage/files/${encodedKey}`);
+      const redirectUrl = `${protocol}://${host}/v1/storage/files/${encodedKey}`;
+      console.log(`[StorageProxy] Local mock redirecting to: ${redirectUrl}`);
+      res.redirect(307, redirectUrl);
       return;
     }
 
