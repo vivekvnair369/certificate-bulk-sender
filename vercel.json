@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/public"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/trpc/(.*)",
+      "dest": "api/index.ts"
+    },
+    {
+      "src": "/manus-storage/(.*)",
+      "dest": "api/index.ts"
+    },
+    {
+      "src": "/v1/storage/(.*)",
+      "dest": "api/index.ts"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "api/index.ts"
+    },
+    {
+      "src": "/oauth/(.*)",
+      "dest": "api/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

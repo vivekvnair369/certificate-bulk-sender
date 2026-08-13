@@ -6,7 +6,7 @@ import sharp from "sharp";
 
 export function registerStorageProxy(app: Express) {
   // Ensure the local storage directory exists
-  const STORAGE_DIR = path.resolve("./storage");
+  const STORAGE_DIR = process.env.VERCEL ? "/tmp/storage" : path.resolve("./storage");
   if (!fs.existsSync(STORAGE_DIR)) {
     fs.mkdirSync(STORAGE_DIR, { recursive: true });
   }
