@@ -88,13 +88,41 @@ export default function CertificateTemplates() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const result = event.target?.result as string;
-      setImageBase64(result);
 
       // Measure dimensions in client side
       const img = new Image();
       img.onload = () => {
-        setPreviewWidth(img.naturalWidth);
-        setPreviewHeight(img.naturalHeight);
+        const originalWidth = img.naturalWidth;
+        const originalHeight = img.naturalHeight;
+
+        // If the image is extremely large, resize it on the client side using a canvas
+        if (originalWidth > 2000) {
+          console.log(`[ClientResize] Resizing large image from ${originalWidth}px to 2000px`);
+          const canvas = document.createElement("canvas");
+          const targetWidth = 2000;
+          const targetHeight = Math.round((originalHeight / originalWidth) * targetWidth);
+
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+            const resizedBase64 = canvas.toDataURL("image/jpeg", 0.9);
+            setImageBase64(resizedBase64);
+            setPreviewWidth(targetWidth);
+            setPreviewHeight(targetHeight);
+          } else {
+            // Fallback to original
+            setImageBase64(result);
+            setPreviewWidth(originalWidth);
+            setPreviewHeight(originalHeight);
+          }
+        } else {
+          setImageBase64(result);
+          setPreviewWidth(originalWidth);
+          setPreviewHeight(originalHeight);
+        }
       };
       img.src = result;
     };
