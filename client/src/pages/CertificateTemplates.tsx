@@ -185,6 +185,8 @@ export default function CertificateTemplates() {
           collegeFont,
           collegeFontSize,
           collegeColor,
+          imageBase64,
+          fileName: imageFile?.name || undefined,
         });
         toast.success("Certificate template updated successfully!");
       }
@@ -354,9 +356,9 @@ export default function CertificateTemplates() {
                   </div>
 
                   {/* Upload Area */}
-                  {view === "create" && (
+                  {(view === "create" || view === "edit") && (
                     <div className="space-y-2">
-                      <Label>Template File (PNG/JPEG)</Label>
+                      <Label>{view === "edit" ? "Replace Template File (PNG/JPEG)" : "Template File (PNG/JPEG)"}</Label>
                       <div className="flex items-center justify-center w-full">
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-lg cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">

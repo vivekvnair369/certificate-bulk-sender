@@ -185,6 +185,8 @@ export const certificateSenderRouter = router({
         collegeFont: z.string(),
         collegeFontSize: z.number(),
         collegeColor: z.string(),
+        imageBase64: z.string().optional(),
+        fileName: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -197,10 +199,37 @@ export const certificateSenderRouter = router({
         throw new Error("Template not found or unauthorized");
       }
 
+      let imageUrl = template.imageUrl;
+      let imageKey = template.imageKey;
+      let width = template.width;
+      let height = template.height;
+
+      // If a new image was uploaded (starts with data:image/)
+      if (input.imageBase64 && input.imageBase64.startsWith("data:image/")) {
+        const base64Data = input.imageBase64.replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, "base64");
+
+        // Extract image dimensions
+        const metadata = await sharp(buffer).metadata();
+        width = metadata.width || 800;
+        height = metadata.height || 600;
+
+        // Upload new template image to S3
+        const key = `templates/${ctx.user.id}/${Date.now()}-${input.fileName || "template.png"}`;
+        const isJpeg = input.fileName?.toLowerCase().endsWith(".jpg") || input.fileName?.toLowerCase().endsWith(".jpeg");
+        const uploadResult = await storagePut(key, buffer, isJpeg ? "image/jpeg" : "image/png");
+        imageUrl = uploadResult.url;
+        imageKey = uploadResult.key;
+      }
+
       await db
         .update(certificateTemplates)
         .set({
           name: input.name,
+          imageUrl,
+          imageKey,
+          width,
+          height,
           nameX: input.nameX.toString(),
           nameY: input.nameY.toString(),
           nameFont: input.nameFont,
