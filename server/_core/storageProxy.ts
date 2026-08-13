@@ -104,7 +104,7 @@ export function registerStorageProxy(app: Express) {
   });
 
   // 4. Serve Static Uploaded Files
-  app.get("/v1/storage/files/*", async (req, res) => {
+  app.get("/v1/storage/files/*", (req, res) => {
     const relPath = (req.params as Record<string, string>)[0];
     const dest = path.join(STORAGE_DIR, relPath);
     console.log(`[StorageProxy] GET files. Path: ${relPath}, Resolved Dest: ${dest}`);
@@ -116,29 +116,6 @@ export function registerStorageProxy(app: Express) {
     }
 
     if (fs.existsSync(dest)) {
-      const ext = path.extname(dest).toLowerCase();
-      const isImage = [".jpg", ".jpeg", ".png", ".webp"].includes(ext);
-
-      if (isImage) {
-        try {
-          const image = sharp(dest);
-          const metadata = await image.metadata();
-
-          if (metadata.width && metadata.width > 2000) {
-            console.log(`[StorageProxy] Resizing large image from ${metadata.width}px to 2000px for web preview`);
-            const resizedBuffer = await image
-              .resize({ width: 2000, withoutEnlargement: true })
-              .toBuffer();
-
-            res.set("Content-Type", ext === ".png" ? "image/png" : "image/jpeg");
-            res.send(resizedBuffer);
-            return;
-          }
-        } catch (err) {
-          console.error(`[StorageProxy] Failed to resize large image on the fly:`, err);
-        }
-      }
-
       console.log(`[StorageProxy] GET files Found, sending file.`);
       res.sendFile(dest);
     } else {
@@ -168,29 +145,6 @@ export function registerStorageProxy(app: Express) {
       }
 
       if (fs.existsSync(dest)) {
-        const ext = path.extname(dest).toLowerCase();
-        const isImage = [".jpg", ".jpeg", ".png", ".webp"].includes(ext);
-
-        if (isImage) {
-          try {
-            const image = sharp(dest);
-            const metadata = await image.metadata();
-
-            if (metadata.width && metadata.width > 2000) {
-              console.log(`[StorageProxy] Resizing manus-storage image from ${metadata.width}px to 2000px for web preview`);
-              const resizedBuffer = await image
-                .resize({ width: 2000, withoutEnlargement: true })
-                .toBuffer();
-
-              res.set("Content-Type", ext === ".png" ? "image/png" : "image/jpeg");
-              res.send(resizedBuffer);
-              return;
-            }
-          } catch (err) {
-            console.error(`[StorageProxy] Failed to resize manus-storage image:`, err);
-          }
-        }
-
         res.sendFile(dest);
       } else {
         console.warn(`[StorageProxy] manus-storage File not found: ${dest}`);
