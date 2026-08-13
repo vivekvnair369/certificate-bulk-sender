@@ -71,7 +71,11 @@ export function registerStorageProxy(app: Express) {
     }
     const host = req.get("host") || "localhost:3000";
     const protocol = req.protocol || "http";
-    const downloadUrl = `${protocol}://${host}/v1/storage/files/${filePath}`;
+    const encodedPath = filePath
+      .split("/")
+      .map(segment => encodeURIComponent(segment))
+      .join("/");
+    const downloadUrl = `${protocol}://${host}/v1/storage/files/${encodedPath}`;
     res.json({ url: downloadUrl });
   });
 
@@ -104,7 +108,11 @@ export function registerStorageProxy(app: Express) {
     if (ENV.forgeApiUrl.includes("localhost") || ENV.forgeApiUrl.includes("127.0.0.1") || !ENV.forgeApiKey) {
       const host = req.get("host") || "localhost:3000";
       const protocol = req.protocol || "http";
-      res.redirect(307, `${protocol}://${host}/v1/storage/files/${key}`);
+      const encodedKey = key
+        .split("/")
+        .map(segment => encodeURIComponent(segment))
+        .join("/");
+      res.redirect(307, `${protocol}://${host}/v1/storage/files/${encodedKey}`);
       return;
     }
 
