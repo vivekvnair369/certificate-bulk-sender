@@ -692,7 +692,7 @@ export default function CertificateTemplates() {
                 </CardHeader>
                 <CardContent className="flex-1 bg-slate-50/50 p-6 flex items-center justify-center min-h-[300px]">
                   {imageBase64 ? (
-                    <div className="relative shadow-lg border rounded overflow-hidden max-w-full" style={{ maxHeight: "550px", containerType: "inline-size" }}>
+                    <div className="relative shadow-lg border rounded overflow-hidden max-w-full" style={{ width: "100%", maxHeight: "550px", containerType: "inline-size" }}>
                       <img
                         src={imageBase64}
                         alt="Live Editor Preview"
