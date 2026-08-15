@@ -133,9 +133,9 @@ export const certificateSenderRouter = router({
       const width = metadata.width || 800;
       const height = metadata.height || 600;
 
-      // Upload template image to S3
-      const key = `templates/${ctx.user.id}/${Date.now()}-${input.fileName}`;
-      const { key: hashedKey, url } = await storagePut(key, buffer, "image/png");
+      // Save base64 image data directly in database
+      const url = input.imageBase64;
+      const hashedKey = `base64-${Date.now()}`;
 
       // Save template metadata to database
       await createCertificateTemplate({
@@ -214,12 +214,9 @@ export const certificateSenderRouter = router({
         width = metadata.width || 800;
         height = metadata.height || 600;
 
-        // Upload new template image to S3
-        const key = `templates/${ctx.user.id}/${Date.now()}-${input.fileName || "template.png"}`;
-        const isJpeg = input.fileName?.toLowerCase().endsWith(".jpg") || input.fileName?.toLowerCase().endsWith(".jpeg");
-        const uploadResult = await storagePut(key, buffer, isJpeg ? "image/jpeg" : "image/png");
-        imageUrl = uploadResult.url;
-        imageKey = uploadResult.key;
+        // Save base64 image data directly in database
+        imageUrl = input.imageBase64;
+        imageKey = `base64-${Date.now()}`;
       }
 
       await db
@@ -450,13 +447,18 @@ async function processBulkEmailsBackground(
     return;
   }
 
-  // Fetch certificate template image buffer from storage
+  // Fetch certificate template image buffer from storage or decode base64
   let templateBuffer: Buffer;
   try {
-    const signedUrl = await storageGetSignedUrl(certTemplate.imageKey);
-    const res = await fetch(signedUrl);
-    if (!res.ok) throw new Error(`HTTP status ${res.status}`);
-    templateBuffer = Buffer.from(await res.arrayBuffer());
+    if (certTemplate.imageUrl && certTemplate.imageUrl.startsWith("data:image/")) {
+      const base64Data = certTemplate.imageUrl.replace(/^data:image\/\w+;base64,/, "");
+      templateBuffer = Buffer.from(base64Data, "base64");
+    } else {
+      const signedUrl = await storageGetSignedUrl(certTemplate.imageKey);
+      const res = await fetch(signedUrl);
+      if (!res.ok) throw new Error(`HTTP status ${res.status}`);
+      templateBuffer = Buffer.from(await res.arrayBuffer());
+    }
   } catch (err: any) {
     console.error("[Bulk Sender Worker] Failed to load template image:", err);
     await db
