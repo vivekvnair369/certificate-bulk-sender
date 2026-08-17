@@ -81,7 +81,7 @@ export const appRouter = router({
 
         // Set session cookie
         const sessionToken = await sdk.createSessionToken(user.openId, {
-          name: user.name || "",
+          name: user.name || "User",
           expiresInMs: ONE_YEAR_MS,
         });
 
