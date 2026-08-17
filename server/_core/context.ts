@@ -23,12 +23,11 @@ export async function createContext(
     user = null;
   }
 
-  // Local development auto-login: if authentication fails and OAUTH is unconfigured or in development, log in default dev user
+  // Local development auto-login: only auto-login when running in local development mode
   const isDev = process.env.NODE_ENV === "development";
-  const hasNoOAuth = !process.env.OAUTH_SERVER_URL;
-  console.log(`[createContext] isDev: ${isDev}, hasNoOAuth: ${hasNoOAuth}, env.NODE_ENV: ${process.env.NODE_ENV}, env.OAUTH_SERVER_URL: ${process.env.OAUTH_SERVER_URL}`);
+  console.log(`[createContext] isDev: ${isDev}, env.NODE_ENV: ${process.env.NODE_ENV}`);
 
-  if (!user && (isDev || hasNoOAuth)) {
+  if (!user && isDev) {
     const devUserOpenId = "dev-user-openid";
     console.log(`[createContext] Attempting dev auto-login with openId: ${devUserOpenId}`);
     try {
@@ -54,6 +53,7 @@ export async function createContext(
         openId: devUserOpenId,
         name: "Local Developer",
         email: "developer@example.com",
+        passwordHash: null,
         loginMethod: "dev",
         role: "admin",
         createdAt: new Date(),

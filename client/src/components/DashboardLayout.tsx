@@ -19,9 +19,10 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { FileText, LayoutDashboard, LogOut, PanelLeft, Settings, Users } from "lucide-react";
+import { FileText, LayoutDashboard, LogOut, PanelLeft, Settings, Users, Mail, Lock, User, Loader2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -48,7 +49,17 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
-  const { loading, user } = useAuth();
+  const { loading, user, refresh } = useAuth();
+
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authName, setAuthName] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+
+  const loginMutation = trpc.auth.login.useMutation();
+  const signupMutation = trpc.auth.signup.useMutation();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
@@ -60,23 +71,156 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Sign in to continue
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
-            </p>
+      <div className="flex items-center justify-center min-h-screen bg-slate-50/50 p-4">
+        <div className="w-full max-w-[420px] bg-white border border-slate-100 rounded-2xl shadow-xl p-8 space-y-6">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="h-12 w-12 rounded-xl bg-teal-50 flex items-center justify-center text-[#20B2AA] mb-2">
+              <FileText className="h-6 w-6" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-800">Bulk Certs</h1>
+            <p className="text-xs text-slate-400">Design, configure and blast certificates with ease.</p>
           </div>
-          <Button
-            onClick={() => startLogin()}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
+
+          <div className="flex border-b border-slate-100 p-0.5 bg-slate-50 rounded-lg">
+            <button
+              onClick={() => { setAuthMode("login"); setAuthError(""); }}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                authMode === "login"
+                  ? "bg-white text-slate-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => { setAuthMode("signup"); setAuthError(""); }}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                authMode === "signup"
+                  ? "bg-white text-slate-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Create Account
+            </button>
+          </div>
+
+          {authError && (
+            <div className="p-3 bg-rose-50 text-rose-600 text-xs rounded-lg font-medium border border-rose-100">
+              {authError}
+            </div>
+          )}
+
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setAuthError("");
+              setIsAuthSubmitting(true);
+              
+              const emailLower = authEmail.toLowerCase().trim();
+              
+              // Validate Gmail ID
+              if (!emailLower.endsWith("@gmail.com")) {
+                toast.error("Please use a valid Gmail ID");
+                setAuthError("Sign-in is limited to users with a Gmail ID (e.g. name@gmail.com).");
+                setIsAuthSubmitting(false);
+                return;
+              }
+
+              try {
+                if (authMode === "login") {
+                  await loginMutation.mutateAsync({
+                    email: emailLower,
+                    password: authPassword,
+                  });
+                  toast.success("Successfully logged in!");
+                  await refresh();
+                } else {
+                  await signupMutation.mutateAsync({
+                    name: authName,
+                    email: emailLower,
+                    password: authPassword,
+                  });
+                  toast.success("Account created successfully!");
+                  await refresh();
+                }
+              } catch (err: any) {
+                console.error(err);
+                setAuthError(err.message || "An authentication error occurred.");
+                toast.error(err.message || "Authentication failed");
+              } finally {
+                setIsAuthSubmitting(false);
+              }
+            }}
+            className="space-y-4"
           >
-            Sign in
-          </Button>
+            {authMode === "signup" && (
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Full Name</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <User className="h-4 w-4" />
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. John Doe"
+                    value={authName}
+                    onChange={(e) => setAuthName(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#20B2AA] focus:ring-1 focus:ring-[#20B2AA]/30 transition-all placeholder:text-slate-300"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Gmail ID</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Mail className="h-4 w-4" />
+                </span>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. name@gmail.com"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#20B2AA] focus:ring-1 focus:ring-[#20B2AA]/30 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Password</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Lock className="h-4 w-4" />
+                </span>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#20B2AA] focus:ring-1 focus:ring-[#20B2AA]/30 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isAuthSubmitting}
+              className="w-full bg-[#20B2AA] hover:bg-[#1a948e] text-white py-2 shadow-sm rounded-lg flex items-center justify-center font-medium mt-6 transition-all"
+            >
+              {isAuthSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  Please wait...
+                </>
+              ) : (
+                authMode === "login" ? "Sign In" : "Create Account"
+              )}
+            </Button>
+          </form>
         </div>
       </div>
     );
