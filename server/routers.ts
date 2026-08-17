@@ -57,7 +57,7 @@ export const appRouter = router({
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-        return { success: true };
+        return { success: true, sessionToken };
       }),
 
     login: publicProcedure
@@ -94,7 +94,7 @@ export const appRouter = router({
           lastSignedIn: new Date(),
         });
 
-        return { success: true };
+        return { success: true, sessionToken };
       }),
 
     logout: publicProcedure.mutation(({ ctx }) => {

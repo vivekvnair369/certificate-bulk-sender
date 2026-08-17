@@ -128,18 +128,24 @@ export default function DashboardLayout({
 
               try {
                 if (authMode === "login") {
-                  await loginMutation.mutateAsync({
+                  const res = await loginMutation.mutateAsync({
                     email: emailLower,
                     password: authPassword,
                   });
+                  if (res.sessionToken) {
+                    sessionStorage.setItem("manus-cookie", `manus_session_token=${res.sessionToken}`);
+                  }
                   toast.success("Successfully logged in!");
                   await refresh();
                 } else {
-                  await signupMutation.mutateAsync({
+                  const res = await signupMutation.mutateAsync({
                     name: authName,
                     email: emailLower,
                     password: authPassword,
                   });
+                  if (res.sessionToken) {
+                    sessionStorage.setItem("manus-cookie", `manus_session_token=${res.sessionToken}`);
+                  }
                   toast.success("Account created successfully!");
                   await refresh();
                 }
