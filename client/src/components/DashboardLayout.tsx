@@ -133,7 +133,7 @@ export default function DashboardLayout({
                     password: authPassword,
                   });
                   if (res.sessionToken) {
-                    sessionStorage.setItem("manus-cookie", `manus_session_token=${res.sessionToken}`);
+                    sessionStorage.setItem("manus-cookie", `app_session_id=${res.sessionToken}`);
                   }
                   toast.success("Successfully logged in!");
                   await refresh();
@@ -144,7 +144,7 @@ export default function DashboardLayout({
                     password: authPassword,
                   });
                   if (res.sessionToken) {
-                    sessionStorage.setItem("manus-cookie", `manus_session_token=${res.sessionToken}`);
+                    sessionStorage.setItem("manus-cookie", `app_session_id=${res.sessionToken}`);
                   }
                   toast.success("Account created successfully!");
                   await refresh();
